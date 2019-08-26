@@ -19,39 +19,77 @@ class yangDB{
     protected $host    = null;         //SET THE HOST FOR DATABASE
     protected $database_name = null;   //SET THE NAME OF DATABASE
     protected $error = 1;
-    protected $hanshake_approved = null;
+    protected $handshake_credential    = 0;
+    protected $handshake_authorization = 0; //0 MEAN THERE'S NO NEED OF SPECIFIC AUTHORIZATION TO ACCESS API
 
     /* PUBLIC FUNCTION */
+    public function authorization($min=""){
+        $this->handshake_authorization = $min;
+    }
 
     //CONNECT TO DATABASE FUNCTION
-	public function connectDB($dbName, $host, $user, $password){
-		
-		try {
+	public function connectDB($dbName="", $host="", $user="", $password="", $log=0){
+        
+        $i = 0;
+        $errors = [];
 
-            $this->database_name = $dbName;
-            $this->host = $host;
+        //IF DATABASE NAME IS NOT EXIST
+        if($dbName == "") {
+           $errors[$i] = array('code'=>"C001", 'msg'=>"Database name can't be empty");
+           $i++;
+        }
 
-            //SET DESTINATION TO SEND DATA
-            $destination = "mysql:dbname=".$dbName.";host=".$host;
+        //IF DATABASE HOST IS NOT EXIST
+        if($host == ""){
+            $errors[$i] = array('code'=>"C002", 'msg'=>"Host Not Defined");
+            $i++;
+        }
 
-        	//PDO OPTIONS
-            $options  = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                              PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            );
+        //IF DATABASE USER IS NOT EXIST
+        if($user == "") {
+           $errors[$i] = array('code'=>"C003", 'msg'=>"Database User Not Defined");
+        }
 
-            //MAKE NEW PDO
-            $this->connect = new PDO($destination, $user, $password, $options);
-            $this->error = null;
+        //ABORT CONNECTION
+        if ($errors != []) {
+            echo json_encode($errors);
+        }
 
-            //MAKE HANDSHAKE
-            $hanshake_approved = 1;
-            
-		} 
+        //ESTABILISH CONNECTION WITH DATABASE
+        else{
 
-        catch (PDOException $e) {
-            $this->showError(500, $e->getMessage(), "log");
-            $this->error = 1;
-        }}
+    		try {
+
+                $this->database_name = $dbName;
+                $this->host = $host;
+
+                //SET DESTINATION TO SEND DATA
+                $destination = "mysql:dbname=".$dbName.";host=".$host;
+
+            	//PDO OPTIONS
+                $options  = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                                  PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                );
+
+                //MAKE NEW PDO
+                $this->connect = new PDO($destination, $user, $password, $options);
+                $this->error = null;
+
+                //ONLY IF DEBUGGING TURNED ON
+                if ($log == 1) {
+                    $this->showError("D200", "Connected to database successfully");
+                }
+
+    		} 
+
+            catch (PDOException $e) {
+                $this->showError("SQLSTATE[".$e->errorInfo[0]."]",$e->errorInfo[2]);
+                $this->error = 1;
+            }
+    
+        }
+    
+    }
 
     // SEND DATA TO TABLE WITH RAW VERSION
     public function insertDataRaw($table, $req_det, $data){
@@ -92,53 +130,49 @@ class yangDB{
 
     //SELECT DATA WITH RAW MODE
     //SUPPORT ONLY JSON MODEL FOR NOW
-    public function getDataRaw($sql_data, $format){
+    public function getDataRaw($sql_data, $typeOf=0){
         
-        try{
 
-            if ($this->connect) {
+        if ($this->handshake_authorization >= 0) {
 
-                //GET DATA FROM SERVER VIA SQL COMMAND
-                $result = $this->connect->query($sql_data);
+            //START GET DATA
+            try{
 
-                //INITIALIZE SERVER DATA
-                $data = [];
+                if ($this->connect) {
 
-                //FETCH DATA FROM DATABASE
-                foreach ($result as $row) {
-                    $data[] = $row;
-                }
+                    //GET DATA FROM SERVER VIA SQL COMMAND
+                    $result = $this->connect->query($sql_data);
 
-                //LOG RECEIVED DATA IF THE RECEIVED DATA IS VALID
-                if ($data != []) {
+                    //INITIALIZE SERVER DATA
+                    $data = [];
 
-                     //STORE DATA IN JSON FORMAT
-                    if ($format == 100) {
-                        $data = json_encode($data);
+                    //FETCH DATA FROM DATABASE
+                    foreach ($result as $row) {
+                        $data[] = $row;
                     }
 
-                }
+                    //STORE DATA IN JSON FORMAT
+                    $data = json_encode($data);
 
-                //SHOW ERROR WHEN RECEIVED DATA IS EMPTY
-                else{
-
-                    if ($format == 100) {
-                        $data = json_encode(array('code' => $code,  
-                                                  'msg'  => $message));  
+                    //DISPLAY ENCODED DATA 
+                    //IF TYPEOF BECOME LOG, IT WILL LOG THE DATA AUTOMATICLY
+                    if ($typeOf == 0) {
+                        echo $data;    
                     }
 
+                    return $data;
+
                 }
 
-                //DISPLAY ENCODED DATA 
-                echo $data;
+            }
 
+            catch(PDOException $e){
+                $this->showError("SQLSTATE[".$e->errorInfo[0]."]",$e->errorInfo[2]);
             }
 
         }
 
-        catch(PDOException $e){
-            echo "Something happened";
-        }}
+    }
 
     //DELETE DATA 
     public function deleteData($table, $sql_data){
@@ -195,16 +229,16 @@ class yangDB{
     /* PROTECTED FUNCTION */
 
     //SHOW ERROR
-    protected function showError($code, $message, $errorType){
+    protected function showError($code, $message, $errorType=0){
 
         $errorLog = json_encode(array('code'=>$code,
                                       'msg'=>$message));
         
-        if ($errorType == "return") {
+        if ($errorType == 1) {
             return $errorLog;
         }
 
-        else if($errorType == "log"){
+        else if($errorType == 0){
             echo $errorLog;
         }}
 
