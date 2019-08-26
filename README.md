@@ -1,5 +1,5 @@
 
-# YANGSIG BRIDGE API - VERSION 0.0.1 (unoptimal)     
+# YANGSIG BRIDGE API (unoptimal)     
 ##### Made by student for students More Form, Less Code   
 
 ##### 안녕하세요 양식.js | part of 게네싯 project		   
