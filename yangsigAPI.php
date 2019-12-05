@@ -28,7 +28,7 @@ class yangDB{
     }
 
     //CONNECT TO DATABASE FUNCTION
-	public function connectDB($dbName="", $host="", $user="", $password="", $log=0){
+	public function connectDB( $host="", $dbName="", $user="", $password="", $log=0){
         
         $i = 0;
         $errors = [];
@@ -91,133 +91,40 @@ class yangDB{
     
     }
 
-    // SEND DATA TO TABLE WITH RAW VERSION
-    public function insertDataRaw($table, $req_det, $data){
-
-        if (isset($data)) {
-
-            //DATA FROM THE BRIDGE
-            //$yangData = $request -> bridge_data;
-        
-            //include "assets/" . $bridge_name . ".php";
-
-            try{
-
-                //CHECK IF THERE'S ERROR IN DATABASE CONNECTION
-                if ($this->connect != null) {
-                    //$query = $bridge_generated_value;
-                    //$conn->query($query);
-                    //echo json_encode($request);
-                }
-
-                else if($this->connect == null && $this->error == 1){
-                    $this->showError(500, "No database connection, please make one");
-                }
-
-            }
-        
-            catch(PDOException $e){
-                echo $e;
-            }
-
-        }}
-
-    // SEND DATA TO VIA YANGSIG BRIDGE 
-    public function insertDataModel($yangsigConf){}
-
-    // SELECT DATA 
-    public function getData($a,$b,$c,$d){}
-
-    //SELECT DATA WITH RAW MODE
-    //SUPPORT ONLY JSON MODEL FOR NOW
-    public function getDataRaw($sql_data, $typeOf=0){
-        
-
-        if ($this->handshake_authorization >= 0) {
-
-            //START GET DATA
-            try{
-
-                if ($this->connect) {
-
-                    //GET DATA FROM SERVER VIA SQL COMMAND
-                    $result = $this->connect->query($sql_data);
-
-                    //INITIALIZE SERVER DATA
-                    $data = [];
-
-                    //FETCH DATA FROM DATABASE
-                    foreach ($result as $row) {
-                        $data[] = $row;
-                    }
-
-                    //STORE DATA IN JSON FORMAT
-                    $data = json_encode($data);
-
-                    //DISPLAY ENCODED DATA 
-                    //IF TYPEOF BECOME LOG, IT WILL LOG THE DATA AUTOMATICLY
-                    if ($typeOf == 0) {
-                        echo $data;    
-                    }
-
-                    return $data;
-
-                }
-
-            }
-
-            catch(PDOException $e){
-                $this->showError("SQLSTATE[".$e->errorInfo[0]."]",$e->errorInfo[2]);
-            }
-
-        }
-
-    }
-
-    //DELETE DATA 
-    public function deleteData($table, $sql_data){
-
-       try{
-
-            if ($this->connect) {
-
-                //SQL COMMANDS
-                $sql_data = "DELETE FROM $table WHERE " + $sql_data;
-
-                //EXECUTE SQL COMMAND
-                $result = $this->connect->query($sql_data);
-                
-                //FEEDBACK
-                showError(200, "Data Deleted Successfully", "log");
-            }
-
-        }
-
-        catch(PDOException $e){
-            echo "Something happened";
-        }}
-
-    //DELETE DATA WITH RAW MODE
-    public function deleteDataRaw($sql_data){
+    // querying data
+    public function query($sql_query, $type_return = "ARRAY"){
 
         try{
 
-            if ($this->connect) {
+            // trying to connect to database
+            if($this->connect){
                 
-                //AUTOMATICLY EXECUTE SQL COMMAND 
-                $result = $this->connect->query($sql);
+                // execute query from sql command
+                $result = $this->connect->query($sql_query);
+                
+                // initialize and fetch the data
+                $data = [];
+                foreach($result as $row){
+                    $data[] = $row;
+                }
 
-                //FEEDBACK
-                showError(200, "Data Deleted Successfully", "log"); 
+                // handled the type of return 
+                if($type_return == "JSON"){
+                    $data = json_encode($data);
+                }
+
+                // return data
+                return $data;
 
             }
 
         }
 
         catch(PDOException $e){
-            showError("SQLERROR",$e,"log");
-        }}
+            $this->showError("ERROR", $e);
+        }
 
+    }
 
     public function log(){
 
@@ -228,7 +135,7 @@ class yangDB{
 
     /* PROTECTED FUNCTION */
 
-    //SHOW ERROR
+    //show error
     protected function showError($code, $message, $errorType=0){
 
         $errorLog = json_encode(array('code'=>$code,
