@@ -28,7 +28,7 @@ class yangDB{
     }
 
     //CONNECT TO DATABASE FUNCTION
-	public function connectDB( $host="", $dbName="", $user="", $password="", $log=0){
+	public function connectDB($host="", $dbName="", $user="", $password="", $log=0){
         
         $i = 0;
         $errors = [];
@@ -92,7 +92,7 @@ class yangDB{
     }
 
     // querying data
-    public function query($sql_query, $type_return = "ARRAY"){
+    public function query($sql_query){
 
         try{
 
@@ -106,11 +106,6 @@ class yangDB{
                 $data = [];
                 foreach($result as $row){
                     $data[] = $row;
-                }
-
-                // handled the type of return 
-                if($type_return == "JSON"){
-                    $data = json_encode($data);
                 }
 
                 // return data
