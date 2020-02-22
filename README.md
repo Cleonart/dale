@@ -1,28 +1,34 @@
 
-# YANGSIG BRIDGE API (unoptimal)     
-##### Made by student for students More Form, Less Code   
+# Dokumentasi Dale
 
-##### 안녕하세요 양식.js | part of 게네싯 project		   
+Dale merupakan kelas php sederhana yang dapat membantu pengembang untuk melakukan pengembangan API berbasis bahasa pemograman php dengan mudah dan sederhana
+
+Dale menggunakan JSON sebagai format data yang diambil atapun error yang akan diterima saat terjadi kesalahan, hal ini bertujuan untuk memudahkan integrasi
+
+## Cara Menggunakan kelas
+```shell
+include 'dale.php';
+```
+
+## Membuat Konstruktor
+```shell
+$dale = new dale();
+```
+
+## Melakukan koneksi ke basis data
+```
+$dale->konek_ke_database("HOST_YANG_AKAN_DITUJU", "NAMA_BASIS_DATA","USERNAME_BASIS_DATA","PASSWORD_BASIS_DATA");
+```
+
+### Melakukan Kueri
+Kueri dapat dilakukan dengan mudah cukup ketik : Contohnya untuk mengambil data dari tabel 'customer'
+```shell
+$dale->kueri("SELECT * FROM `CUSTOMER`");
+echo $dale;
+```
+
+That's all, easy right?
 
 
-##### YANGSIG LEGENDS
-JSON  -> 100
 
-##### ERROR LEGENDS
 
-##### C-CODE | CONNECTION TO DATABASE FAILED
----------------------------------------
-##### C001  -> Database Not Exist
-##### C002  -> Host Not Defined
-##### C003  -> Database User Not Defined
-##### C004  -> Database User Password Not Defined
-##### C200  -> Connected Successfully
-
-##### D-CODE | DATA
-##### D404  -> Data or table view not found
-
-##### #AUTHORIZATION TABLE
-##### 0   : MEANS NO HANDSHAKE INITIALIZE 
-##### -1  : MEANS HANDSHAKE AND AUTHORIZATION FAILED
-#####> 0  : SMEANS HANDSHAKE AND AUTHORIZATION SUCCESS
- 
