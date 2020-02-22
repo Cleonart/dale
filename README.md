@@ -6,6 +6,7 @@ Dale merupakan kelas php sederhana yang dapat membantu pengembang untuk melakuka
 Dale menggunakan JSON sebagai format data yang diambil atapun error yang akan diterima saat terjadi kesalahan, hal ini bertujuan untuk memudahkan integrasi
 
 ## Cara Menggunakan kelas
+Kopi file dale.php kedalam satu folder yang sama dengan proyek kamu
 ```shell
 include 'dale.php';
 ```
