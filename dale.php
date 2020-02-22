@@ -1,18 +1,9 @@
 <?php
 
-/**
----------------------------------------------
-YANGSIG BRIDGE API - VERSION 0.0.1 (unoptimal)
-^_^ Made by student for students
-    More Form, Less Code
-
-안녕하세요 양식.js | part of 게네싯 project
-***************************************-->
-*/
 
 header('Access-Control-Allow-Origin: *');
 
-class yangDB{
+class {
 	
     //YANGSIG CLASS VARIABLE
 	protected $connect = null;         //TO ESTABILISH CONNECTION
@@ -28,7 +19,7 @@ class yangDB{
     }
 
     //CONNECT TO DATABASE FUNCTION
-	public function connectDB($host="", $dbName="", $user="", $password="", $log=0){
+	public function konek_ke_database($host="", $dbName="", $user="", $password="", $log=0){
         
         $i = 0;
         $errors = [];
@@ -92,25 +83,53 @@ class yangDB{
     }
 
     // querying data
-    public function query($sql_query){
+    public function kueri($sql_query){
 
         try{
 
             // trying to connect to database
             if($this->connect){
                 
-                // execute query from sql command
-                $result = $this->connect->query($sql_query);
-                
-                // initialize and fetch the data
-                $data = [];
-                foreach($result as $row){
-                    $data[] = $row;
+                // explode array to find out what sql method used
+                $exploded_query = explode(" ", $sql_query);
+
+                if($exploded_query[0] == "INSERT" || 
+                   $exploded_query[0] == "SELECT" ||
+                   $exploded_query[0] == "UPDATE" ||
+                   $exploded_query[0] == "DELETE"){
+                    $this->showError("QRY_404", "Gagal melakukan query[perintah $exploded_query[0] tidak ditemukan]");
                 }
 
-                // return data
-                return $data;
+                else{
 
+                    // execute query from sql command
+                    $result = $this->connect->query($sql_query);
+
+                    // if the query is select make the array to json
+                    if($exploded_query[0] == "SELECT"){
+
+                        // initialize and fetch the data
+                        $data = [];
+                        foreach($result as $row){
+                            $data[] = $row;
+                        }
+
+                    }
+
+                    else{
+
+                        // notify user that 
+                        $data = json_encode(array('kode'=>"QRY_200",
+                                                  'pesan'=>"Query $exploded_query[0] berhasil dilakukan"));
+
+                    }
+
+                    $data = json_encode($data);
+
+                    // return data
+                    return $data;
+
+                }
             }
 
         }
@@ -133,8 +152,8 @@ class yangDB{
     //show error
     protected function showError($code, $message, $errorType=0){
 
-        $errorLog = json_encode(array('code'=>$code,
-                                      'msg'=>$message));
+        $errorLog = json_encode(array('kode'=>$code,
+                                      'pesan'=>$message));
         
         if ($errorType == 1) {
             return $errorLog;
