@@ -26,19 +26,19 @@ class {
 
         //IF DATABASE NAME IS NOT EXIST
         if($dbName == "") {
-           $errors[$i] = array('code'=>"C001", 'msg'=>"Database name can't be empty");
+           $errors[$i] = array('code'=>"BD_KOSONG", 'msg'=>"Oops, parameter basis data tidak boleh kosong");
            $i++;
         }
 
         //IF DATABASE HOST IS NOT EXIST
         if($host == ""){
-            $errors[$i] = array('code'=>"C002", 'msg'=>"Host Not Defined");
+            $errors[$i] = array('code'=>"HT_KOSONG", 'msg'=>"Oops, parameter host tidak boleh kosong");
             $i++;
         }
 
         //IF DATABASE USER IS NOT EXIST
         if($user == "") {
-           $errors[$i] = array('code'=>"C003", 'msg'=>"Database User Not Defined");
+           $errors[$i] = array('code'=>"PG_KOSONG", 'msg'=>"Oops, parameter user tidak boleh kosong");
         }
 
         //ABORT CONNECTION
@@ -68,7 +68,7 @@ class {
 
                 //ONLY IF DEBUGGING TURNED ON
                 if ($log == 1) {
-                    $this->showError("D200", "Connected to database successfully");
+                    $this->showError("BERHASIL_TERKONEK", "Koneksi ke basis data berhasil dilakukan");
                 }
 
     		} 
