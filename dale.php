@@ -3,7 +3,7 @@
 
 header('Access-Control-Allow-Origin: *');
 
-class {
+class dale{
 	
     //YANGSIG CLASS VARIABLE
 	protected $connect = null;         //TO ESTABILISH CONNECTION
@@ -93,43 +93,45 @@ class {
                 // explode array to find out what sql method used
                 $exploded_query = explode(" ", $sql_query);
 
-                if($exploded_query[0] == "INSERT" || 
-                   $exploded_query[0] == "SELECT" ||
-                   $exploded_query[0] == "UPDATE" ||
-                   $exploded_query[0] == "DELETE"){
-                    $this->showError("QRY_404", "Gagal melakukan query[perintah $exploded_query[0] tidak ditemukan]");
-                }
-
-                else{
+                if($exploded_query[0] == "SELECT"){
 
                     // execute query from sql command
                     $result = $this->connect->query($sql_query);
 
-                    // if the query is select make the array to json
-                    if($exploded_query[0] == "SELECT"){
-
-                        // initialize and fetch the data
-                        $data = [];
-                        foreach($result as $row){
-                            $data[] = $row;
-                        }
-
+                    // initialize and fetch the data
+                    $data = [];
+                    foreach($result as $row){
+                        $data[] = $row;
                     }
-
-                    else{
-
-                        // notify user that 
-                        $data = json_encode(array('kode'=>"QRY_200",
-                                                  'pesan'=>"Query $exploded_query[0] berhasil dilakukan"));
-
-                    }
-
-                    $data = json_encode($data);
-
-                    // return data
-                    return $data;
 
                 }
+
+                else if($exploded_query[0] == "INSERT" || 
+                        $exploded_query[0] == "UPDATE" || 
+                        $exploded_query[0] == "DELETE"){
+                    
+                    // execute query from sql command
+                    $result = $this->connect->query($sql_query);
+
+                    // notify user that 
+                    $data = json_encode(array('kode'=>"QRY_200",
+                                              'pesan'=>"Query $exploded_query[0] berhasil dilakukan"));
+
+                }
+                
+
+                else{
+                     // notify user that 
+                    $data = json_encode(array('kode'=>"QRY_404",
+                                              'pesan'=>"Query $exploded_query[0] tidak ditemukan"));
+                }
+
+                $data = json_encode($data);
+
+                // return data
+                return $data;
+
+                
             }
 
         }
